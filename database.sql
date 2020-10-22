@@ -7,32 +7,62 @@ use `intranet_tfe`;
 --
 -- table des utilisateurs
 --
-drop table if exists `users`;
+drop table if exists `user`;
 
-create table `users` (
+create table `user` (
+	`id` int(11) not null auto_increment,
     `username` varchar(50) not null,
-    `password` varchar(68) not null,
-    `enabled` tinyint(1) not null,
-    primary key (`username`)
+    `password` char(80) not null,
+    `first_name` varchar(50) not null,
+    `last_name` varchar(50) not null,
+    `email` varchar(50) not null,
+    primary key (`id`)
 ) engine InnoDB auto_increment=1 default charset=utf8;
 
 --
 -- Insertion d'un ustilisateur par défaut
-insert into `users` values ('admin', '{brcypt}$2a$10$9ux2poECd9muJDTRI0VfUOLpju9hzVAUjo8BoDSVNHwWZieun6QOW', 1);
+insert into `user` (username, password, first_name, last_name, email) values ('fredohm', '$2a$10$9ux2poECd9muJDTRI0VfUOLpju9hzVAUjo8BoDSVNHwWZieun6QOW', 'Fred', 'Ohm', 'fredwz@ymail.com');
 
 --
 -- tables des autorités
 --
-drop table if exists `authorities`;
+drop table if exists `role`;
 
-create table `authorities` (
-	`username` varchar(50) not null,
-	`authority` varchar(50) not null,
-    unique key `authorities_idx_1` (`username`, `authority`),
-    constraint `authorities_ibfk_1` foreign key (`username`) references `users` (`username`)
+create table `role` (
+	`id` int(11) not null auto_increment,
+	`name` varchar(50) default null,
+    primary key (`id`)
 ) engine=InnoDB auto_increment=1 default charset=utf8;
 
-insert into `authorities` values ('admin', 'ROLE_ADMIN'meeting_room);
+
+insert into `role` (name) values ('ROLE_EMPLOYEE'),('ROLE_MANAGER'),('ROLE_ADMIN');
+
+
+--
+--  table associant utilisateurs et roles
+--
+drop table if exists `users_roles`;
+
+create table `users_roles` (
+	`user_id` int(11) not null,
+    `role_id` int(11) not null,
+    primary key(`user_id`,`role_id`),
+    
+    key `fk_role_idx` (`role_id`),
+    
+    constraint `fk_user` foreign key (`user_id`)
+    references `user` (`id`)
+    on delete no action on update no action,
+    
+    constraint `fk_role` foreign key (`role_id`)
+    references `role` (`id`)
+    on delete no action on update no action
+) engine=InnoDB default charset=utf8;
+
+set foreign_key_checks=1;
+
+insert into `users_roles` (user_id,role_id) values (1,3);
+
 --
 -- table répertoriant les salles existantes
 --
